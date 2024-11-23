@@ -1,7 +1,3 @@
-Got it! Here's the updated version with the clarification that the SSH or HTTPS clone URL applies to the **user's repository**, not this project:
-
----
-
 # 🚀 GitHub-Made-Simple: Git Without the Grit!
 
 Tired of wrestling with Git commands? Meet **GitHub-Made-Simple**—your friendly neighborhood tool that helps you notice changes, track deletions, manage creations, and effortlessly push your code to GitHub. It's simple, yet powerful, and still evolving! 🌱✨
@@ -113,7 +109,3 @@ Open an issue to suggest new features or improvements. We're always excited to s
 ---
 
 Happy coding! 🧑‍💻✨ GitHub-Made-Simple has your back! 💪
-
----
-
-This version clarifies that the SSH/HTTPS URL requirement is specific to the **user's own repository**, not the GitHub-Made-Simple project. Let me know if this works!
