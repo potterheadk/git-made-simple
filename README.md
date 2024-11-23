@@ -1,3 +1,6 @@
+Got it! Here's the updated version with the clarification that the SSH or HTTPS clone URL applies to the **user's repository**, not this project:
+
+---
 
 # 🚀 GitHub-Made-Simple: Git Without the Grit!
 
@@ -20,6 +23,18 @@ Tired of wrestling with Git commands? Meet **GitHub-Made-Simple**—your friendl
 git clone https://github.com/potterheadk/github-made-simple.git
 cd github-made-simple
 ```
+
+### **Important for Your Repository**:
+When using this tool for your own repository, you **must** clone your repository using the correct URL format:
+- For **SSH access**, you **must** clone the repository using the SSH URL format:  
+  ```bash
+  git clone git@github.com:<your-username>/<your-repository>.git
+  ```
+- For **HTTPS access**, you **must** use the HTTP-based URL:  
+  ```bash
+  git clone https://github.com/<your-username>/<your-repository>.git
+  ```
+If you don’t use the correct URL type (SSH or HTTPS), the script will ask for your password in the terminal.
 
 ### Step 2: Set Up Your Environment
 We recommend using a virtual environment for a clean setup. Here’s how you can do it on Arch Linux:
@@ -98,3 +113,7 @@ Open an issue to suggest new features or improvements. We're always excited to s
 ---
 
 Happy coding! 🧑‍💻✨ GitHub-Made-Simple has your back! 💪
+
+---
+
+This version clarifies that the SSH/HTTPS URL requirement is specific to the **user's own repository**, not the GitHub-Made-Simple project. Let me know if this works!
