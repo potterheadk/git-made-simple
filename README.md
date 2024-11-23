@@ -7,7 +7,9 @@ Tired of wrestling with Git commands? Meet **GitHub-Made-Simple**—your friendl
 
 ## 🎥 Demo Video  
 Check out how **GitHub-Made-Simple** works in action!  
-[![Watch the Demo](https://img.youtube.com/vi/CgCg_I-9IiI/maxresdefault.jpg)](https://youtu.be/CgCg_I-9IiI)
+
+
+https://github.com/user-attachments/assets/3c35de66-9c88-41f2-ba90-3a10cf748fc3
 
 ---
 
