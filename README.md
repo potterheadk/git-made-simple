@@ -7,7 +7,10 @@ Tired of wrestling with Git commands? Meet **GitHub-Made-Simple**—your friendl
 
 ## 🎥 Demo Video  
 Check out how **GitHub-Made-Simple** works in action!  
-[**demo_video.mp4**](demo_video.mp4)
+<div align="center" style="border: 2px solid #ccc; padding: 10px; width: 60%; margin: 20px auto; border-radius: 8px; background-color: #f9f9f9;">
+  <h3>🎬 See It In Action!</h3>
+  <p><a href="demo_video.mp4" style="text-decoration: none; font-weight: bold;">Click here to watch the demo video: demo_video.mp4</a></p>
+</div>
 
 ---
 
