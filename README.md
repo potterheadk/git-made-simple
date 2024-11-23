@@ -14,13 +14,6 @@ https://github.com/user-attachments/assets/3c35de66-9c88-41f2-ba90-3a10cf748fc3
 ---
 
 ## 🛠️ **Getting Started**
-
-### Step 1: Clone the Repository  
-```bash
-git clone https://github.com/potterheadk/github-made-simple.git
-cd github-made-simple
-```
-
 ### **Important for Your Repository**  
 When using this tool for your own repository, you **must** clone your repository using the correct URL format:  
 
@@ -36,6 +29,12 @@ When using this tool for your own repository, you **must** clone your repository
 
 > **Note:** If you don’t use the correct URL type (SSH or HTTPS), the script will prompt you for your credentials in the terminal.
 
+
+### Step 1: Clone the Repository  
+```bash
+git clone https://github.com/potterheadk/github-made-simple.git
+cd github-made-simple
+```
 ---
 
 ### Step 2: Set Up Your Environment  
