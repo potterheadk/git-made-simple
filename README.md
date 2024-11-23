@@ -84,7 +84,8 @@ python auto_git_gui.py
 ## 🧭 **Key Features**  
 - **Track All Changes:** Detect additions, deletions, or updates with ease.  
 - **Push with a Click:** No more terminal gymnastics!  
-- **Simple and Lightweight:** Designed for efficiency without the bloat.  
+- **Simple and Lightweight:** Designed for efficiency without the bloat.
+- **Some Error Handeling:** It handles submodules,clears cache if there is error in some cases.
 
 ---
 
