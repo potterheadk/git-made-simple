@@ -13,11 +13,6 @@ https://github.com/user-attachments/assets/3c35de66-9c88-41f2-ba90-3a10cf748fc3
 
 ---
 
-## 📸 Sneak Peek  
-(*Insert images of the UI here*)  
-
----
-
 ## 🛠️ **Getting Started**
 
 ### Step 1: Clone the Repository  
