@@ -1,111 +1,133 @@
-# 🚀 GitHub-Made-Simple: Git Without the Grit!
+
+# 🚀 **GitHub-Made-Simple: Git Without the Grit!**
 
 Tired of wrestling with Git commands? Meet **GitHub-Made-Simple**—your friendly neighborhood tool that helps you notice changes, track deletions, manage creations, and effortlessly push your code to GitHub. It's simple, yet powerful, and still evolving! 🌱✨
 
-## 🎥 Demo Video
-(*Insert demo video link here*)
+---
+
+## 🎥 Demo Video  
+Check out how **GitHub-Made-Simple** works in action!  
+[**demo_video.mp4**](demo_video.mp4)
 
 ---
 
-## 📸 Sneak Peek
-(*Insert images of the UI here*)
+## 📸 Sneak Peek  
+(*Insert images of the UI here*)  
 
 ---
 
-## 🛠️ Getting Started
+## 🛠️ **Getting Started**
 
-### Step 1: Clone the Repository
+### Step 1: Clone the Repository  
 ```bash
 git clone https://github.com/potterheadk/github-made-simple.git
 cd github-made-simple
 ```
 
-### **Important for Your Repository**:
-When using this tool for your own repository, you **must** clone your repository using the correct URL format:
-- For **SSH access**, you **must** clone the repository using the SSH URL format:  
+### **Important for Your Repository**  
+When using this tool for your own repository, you **must** clone your repository using the correct URL format:  
+
+- For **SSH access**, use:  
   ```bash
   git clone git@github.com:<your-username>/<your-repository>.git
   ```
-- For **HTTPS access**, you **must** use the HTTP-based URL:  
+
+- For **HTTPS access**, use:  
   ```bash
   git clone https://github.com/<your-username>/<your-repository>.git
   ```
-If you don’t use the correct URL type (SSH or HTTPS), the script will ask for your password in the terminal.
 
-### Step 2: Set Up Your Environment
-We recommend using a virtual environment for a clean setup. Here’s how you can do it on Arch Linux:
+> **Note:** If you don’t use the correct URL type (SSH or HTTPS), the script will prompt you for your credentials in the terminal.
+
+---
+
+### Step 2: Set Up Your Environment  
+We recommend using a virtual environment for a clean setup. Here’s how to do it (example for Arch Linux):  
 ```bash
 python -m venv venv
 source venv/bin/activate
 ```
-For other OS users—Google is your friend! 😄
 
-### Step 3: Install Requirements
+For other operating systems, search for your OS-specific instructions on Google! 😄  
+
+---
+
+### Step 3: Install Requirements  
 ```bash
 pip install -r requirement.txt
 ```
 
-### Step 4: Run the Script
+---
+
+### Step 4: Run the Script  
 ```bash
 python auto_git_gui.py
 ```
 
 ---
 
-## 🧑‍💻 How to Use the Script
+## 🧑‍💻 **How to Use the Script**
 
-### 🗝️ Method 1: SSH Access
-1. Ensure your GitHub account's SSH key is set up.
-2. Place your private SSH key in `~/.config/ssh/id_rsa`.
-3. In the script UI, choose the SSH method, and you're ready to roll!
-
-### 🔐 Method 2: HTTPS Access
-1. Choose HTTPS in the script UI.
-2. Enter your GitHub username and either your password or a personal access token.
-   - (*Pro tip*: Tokens are safer than passwords. Learn how to create one [here](https://github.com/settings/tokens).)
+### 🗝️ Method 1: SSH Access  
+1. Ensure your GitHub account's SSH key is set up. Learn how to generate one [here](https://docs.github.com/en/authentication/connecting-to-github-with-ssh).  
+2. Place your private SSH key in the default directory:  
+   - **Linux/Mac:** `~/.ssh/id_rsa`  
+   - **Windows:** Your SSH key's path in your terminal tool (e.g., Git Bash).  
+3. If you already have an `id_rsa` file (your private key), upload it in the **Browse** section in the script's UI by renaming it with a `.rsa` extension.  
+4. In the script UI, select the **SSH method**, and you're ready to roll!
 
 ---
 
-## 🧭 Key Features
-- **Track All Changes:** Detect additions, deletions, or updates with ease.
-- **Push with a Click:** No more terminal gymnastics.
-- **Simple and Basic:** Designed for efficiency without the bloat.
+### 🔐 Method 2: HTTPS Access  
+1. In the script UI, choose the **HTTPS method**.  
+2. Enter your GitHub username and either your password or a personal access token (PAT).  
+   - **Pro tip:** Tokens are safer than passwords! Learn how to create one [here](https://github.com/settings/tokens).
 
 ---
 
-## ⚠️ Important Warnings!
-- **Clone First:** Always clone your repo before using this tool. It won't create a new repo for you.
-- **Repo Selection:** Double-check the repo path in the UI. Picking the wrong one means no backup—ouch! 😬
+## 🧭 **Key Features**  
+- **Track All Changes:** Detect additions, deletions, or updates with ease.  
+- **Push with a Click:** No more terminal gymnastics!  
+- **Simple and Lightweight:** Designed for efficiency without the bloat.  
 
 ---
 
-## 🤝 Contributing
+## ⚠️ **Important Warnings!**  
+1. **Clone First:** Always clone your repo before using this tool. It won't create a new repository for you.  
+2. **Repo Selection:** Double-check the repository path in the UI. Picking the wrong path might result in data loss—ouch! 😬  
 
-### Found an Error? Create a PR!
-Help us improve! If you encounter bugs or have ideas for enhancements, submit a pull request:
+---
 
-1. **Fork** this repository.
-2. **Clone** your fork:
+## 🤝 **Contributing**
+
+### Found an Error? Create a PR!  
+Help us improve! If you encounter bugs or have ideas for enhancements, submit a pull request:  
+
+1. **Fork** this repository.  
+2. **Clone** your fork:  
    ```bash
    git clone https://github.com/your-username/github-made-simple.git
    ```
-3. **Create a branch** for your fix or feature:
+3. **Create a branch** for your fix or feature:  
    ```bash
    git checkout -b fix-or-feature-name
    ```
-4. **Make your changes** and commit them:
+4. **Make your changes** and commit them:  
    ```bash
    git commit -m "Your descriptive commit message"
    ```
-5. **Push** your branch:
+5. **Push** your branch:  
    ```bash
    git push origin fix-or-feature-name
    ```
-6. Open a **pull request** on the original repo. 🎉
-
-### Got Feature Ideas? Let’s Talk!
-Open an issue to suggest new features or improvements. We're always excited to see how we can grow together!
+6. Open a **pull request** on the original repo. 🎉  
 
 ---
 
-Happy coding! 🧑‍💻✨ GitHub-Made-Simple has your back! 💪
+### Got Feature Ideas? Let’s Talk!  
+Open an issue to suggest new features or improvements. We're always excited to grow with our community!  
+
+---
+
+## 🌟 **Happy Coding!**  
+GitHub-Made-Simple has your back! 💪  
