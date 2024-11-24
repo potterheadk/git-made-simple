@@ -98,26 +98,7 @@ python auto_git_gui.py
 ## 🤝 **Contributing**
 
 ### Found an Error? Create a PR!  
-Help us improve! If you encounter bugs or have ideas for enhancements, submit a pull request:  
-
-1. **Fork** this repository.  
-2. **Clone** your fork:  
-   ```bash
-   git clone https://github.com/your-username/github-made-simple.git
-   ```
-3. **Create a branch** for your fix or feature:  
-   ```bash
-   git checkout -b fix-or-feature-name
-   ```
-4. **Make your changes** and commit them:  
-   ```bash
-   git commit -m "Your descriptive commit message"
-   ```
-5. **Push** your branch:  
-   ```bash
-   git push origin fix-or-feature-name
-   ```
-6. Open a **pull request** on the original repo. 🎉  
+Help us improve! If you encounter bugs or have ideas for enhancements let me know :)
 
 ---
 
