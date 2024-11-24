@@ -32,8 +32,8 @@ When using this tool for your own repository, you **must** clone your repository
 
 ### Step 1: Clone the Repository  
 ```bash
-git clone https://github.com/potterheadk/github-made-simple.git
-cd github-made-simple
+git clone https://github.com/potterheadk/git-made-simple.git
+cd git-made-simple
 ```
 ---
 
