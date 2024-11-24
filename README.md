@@ -127,4 +127,4 @@ Open an issue to suggest new features or improvements. We're always excited to g
 ---
 
 ## 🌟 **Happy Coding!**  
-GitHub-Made-Simple has your back! 💪  
+Git-Made-Simple has your back! 💪  
