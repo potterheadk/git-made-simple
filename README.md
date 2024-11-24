@@ -1,12 +1,12 @@
 
-# 🚀 **GitHub-Made-Simple: Git Without the Grit!**
+# 🚀 **Git-Made-Simple: Git Without the Grit!**
 
-Tired of wrestling with Git commands? Meet **GitHub-Made-Simple**—your friendly neighborhood tool that helps you notice changes, track deletions, manage creations, and effortlessly push your code to GitHub. It's simple, yet powerful, and still evolving! 🌱✨
+Tired of wrestling with Git commands? Meet **Git-Made-Simple**—your friendly neighborhood tool that helps you notice changes, track deletions, manage creations, and effortlessly push your code to GitHub. It's simple, yet powerful, and still evolving! 🌱✨
 
 ---
 
 ## 🎥 Demo Video  
-Check out how **GitHub-Made-Simple** works in action!  
+Check out how **Git-Made-Simple** works in action!  
 
 
 https://github.com/user-attachments/assets/3c35de66-9c88-41f2-ba90-3a10cf748fc3
