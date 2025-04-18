@@ -156,6 +156,3 @@ Report bugs and suggestions via GitHub Issues!
 ## 🧠 Fun Fact
 
 This app was built because... not everyone dreams in terminal commands. If you’ve ever forgotten whether `git pull --rebase` will break something — **Git Made Simple** is your new best friend.
-
----
->>>>>>> b6c54a43274909ed64cc83c7648f90fa0003f31f
