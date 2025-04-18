@@ -1,12 +1,12 @@
 # gui/main_window.py
+from PySide6.QtGui import QFont, QIcon
+from PySide6.QtCore import Qt, Signal, Slot, QPropertyAnimation, QEasingCurve, QRect
 from PySide6.QtWidgets import (QMainWindow, QWidget, QPushButton, QVBoxLayout,
                               QHBoxLayout, QLabel, QLineEdit, QFileDialog,
                               QTextEdit, QGroupBox, QFormLayout, QComboBox,
-                              QMessageBox, QStatusBar)
-from PySide6.QtCore import Qt, Signal, Slot
-from PySide6.QtGui import QFont, QIcon
+                              QMessageBox, QStatusBar, QDialog, QStyle)
 import os
-
+from datetime import datetime
 # Module imports
 from core.git_manager import GitManager
 from core.file_sync import FileSync
@@ -15,151 +15,470 @@ from gui.history_dialog import ChangeHistoryDialog
 from gui.conflict_dialog import ConflictResolutionDialog
 from gui.gitignore_dialog import GitIgnoreDialog
 from gui.branch_dialog import BranchDialog
+from gui.commit_dialog import CommitDialog
+from gui.ssh_key_dialog import SSHKeyDialog
 
+# Create a base dialog class with animations
+class AnimatedDialog(QDialog):
+    """Base dialog class with smooth animations"""
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowModality(Qt.ApplicationModal)
+        self.animation = None
+
+    def showEvent(self, event):
+        """Animate the dialog when it's shown"""
+        if not self.animation:
+            self.animation = QPropertyAnimation(self, b"geometry")
+            self.animation.setDuration(250)
+            self.animation.setEasingCurve(QEasingCurve.OutCubic)
+
+            # Save the target geometry
+            target_geometry = self.geometry()
+
+            # Start from a smaller size
+            start_geometry = QRect(
+                target_geometry.center().x() - target_geometry.width() * 0.4,
+                target_geometry.center().y() - target_geometry.height() * 0.4,
+                target_geometry.width() * 0.8,
+                target_geometry.height() * 0.8
+            )
+
+            # Set up the animation
+            self.animation.setStartValue(start_geometry)
+            self.animation.setEndValue(target_geometry)
+            self.animation.start()
+
+        super().showEvent(event)
+
+class PrimaryButton(QPushButton):
+    """Custom styled primary action button"""
+    def __init__(self, text, parent=None):
+        super().__init__(text, parent)
+        self.setMinimumHeight(32)
+        self.setStyleSheet("""
+            QPushButton {
+                background-color: #7c9885;
+                color: white;
+                font-weight: bold;
+                border: none;
+                border-radius: 6px;
+            }
+            QPushButton:hover {
+                background-color: #6a8573;
+            }
+            QPushButton:pressed {
+                background-color: #5d7664;
+            }
+        """)
+
+class DangerButton(QPushButton):
+    """Custom styled button for potentially dangerous operations"""
+    def __init__(self, text, parent=None):
+        super().__init__(text, parent)
+        self.setMinimumHeight(30)
+        self.setStyleSheet("""
+            QPushButton {
+                background-color: #c17c74;
+                color: white;
+                font-weight: bold;
+                border: none;
+                border-radius: 6px;
+            }
+            QPushButton:hover {
+                background-color: #b06b64;
+            }
+            QPushButton:pressed {
+                background-color: #9e5a54;
+            }
+        """)
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         # Initialize window properties
         self.setWindowTitle("Git Backup Tool")
-        self.setMinimumSize(800, 500)
+        self.setMinimumSize(800, 600)
 
         # Initialize core components
         self.git_manager = GitManager()
         self.file_sync = FileSync(self.git_manager)
 
-        # Setup UI components
+        # SSH key path
+        self.ssh_key_path = ""
+
+        # Setup UI components FIRST
         self.setup_ui()
+
+        # THEN apply styles (after UI components are created)
+        self.apply_styles()
 
         # Initialize status bar
         self.statusBar().showMessage("Ready")
+
+    def apply_styles(self):
+        """Apply CSS styles to improve UI appearance with better colors and smoother design"""
+        self.setStyleSheet("""
+            /* Overall application style */
+            QMainWindow, QDialog {
+                background-color: #f7f7f7;
+            }
+
+            /* Button styling with subtle colors and smooth curves */
+            QPushButton {
+                background-color: #e8e4e1;
+                color: #4a4a4a;
+                border: 1px solid #d2cdc8;
+                border-radius: 6px;
+                padding: 6px 12px;
+                min-width: 80px;
+                font-weight: 500;
+            }
+
+            QPushButton:hover {
+                background-color: #dbd6d0;
+                border-color: #c2bdb8;
+            }
+
+            QPushButton:pressed {
+                background-color: #cec9c3;
+                color: #333333;
+            }
+
+            /* Group box styling with subtle borders and rounded corners */
+            QGroupBox {
+                font-weight: bold;
+                color: #5a5a5a;
+                border: 1px solid #d0ccc7;
+                border-radius: 8px;
+                margin-top: 12px;
+                background-color: #fbfbfb;
+                padding: 10px;
+            }
+
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 10px;
+                padding: 0 5px;
+                color: #625f5c;
+            }
+
+            /* Input field styling with warm colors */
+            QLineEdit, QTextEdit {
+                border: 1px solid #d0ccc7;
+                border-radius: 6px;
+                padding: 5px;
+                background-color: #ffffff;
+                color: #4a4a4a;
+                selection-background-color: #cec5b8;
+            }
+
+            QLineEdit:focus, QTextEdit:focus {
+                border-color: #b8a899;
+            }
+
+            /* Dropdown styling */
+            QComboBox {
+                border: 1px solid #d0ccc7;
+                border-radius: 6px;
+                padding: 5px;
+                min-width: 6em;
+                background-color: #f8f6f3;
+                color: #4a4a4a;
+            }
+
+            QComboBox:hover {
+                background-color: #f0ede9;
+            }
+
+            QComboBox::drop-down {
+                subcontrol-origin: padding;
+                subcontrol-position: top right;
+                width: 20px;
+                border-left: 1px solid #d0ccc7;
+                border-top-right-radius: 6px;
+                border-bottom-right-radius: 6px;
+            }
+
+            /* Status bar with subtle highlight */
+            QStatusBar {
+                background-color: #f0ede9;
+                color: #5a5a5a;
+                border-top: 1px solid #e0dcd7;
+            }
+
+            /* Text output area styling */
+            QTextEdit#outputText {
+                background-color: #f9f8f6;
+                border: 1px solid #e0dcd7;
+                color: #4a4a4a;
+                font-family: Consolas, Monaco, monospace;
+            }
+
+            /* Labels with better contrast */
+            QLabel {
+                color: #4a4a4a;
+            }
+
+            /* List widgets */
+            QListWidget {
+                background-color: #f9f8f6;
+                border: 1px solid #e0dcd7;
+                border-radius: 6px;
+                alternate-background-color: #f0ede9;
+            }
+
+            QListWidget::item {
+                padding: 4px;
+                border-radius: 4px;
+            }
+
+            QListWidget::item:selected {
+                background-color: #e7e0d6;
+                color: #3a3a3a;
+            }
+
+            QListWidget::item:hover {
+                background-color: #f0ede9;
+            }
+
+            /* Tab widget styling */
+            QTabWidget::pane {
+                border: 1px solid #d0ccc7;
+                border-radius: 6px;
+                background-color: #fbfbfb;
+            }
+
+            QTabBar::tab {
+                background-color: #e8e4e1;
+                color: #5a5a5a;
+                border: 1px solid #d2cdc8;
+                border-bottom-color: #d0ccc7;
+                border-top-left-radius: 6px;
+                border-top-right-radius: 6px;
+                padding: 6px 12px;
+            }
+
+            QTabBar::tab:selected {
+                background-color: #fbfbfb;
+                border-bottom-color: #fbfbfb;
+            }
+
+            QTabBar::tab:!selected {
+                margin-top: 2px;
+            }
+        """)
 
     def setup_ui(self):
         # Main central widget and layout
         central_widget = QWidget()
         main_layout = QVBoxLayout(central_widget)
-        main_layout.setSpacing(10)
-        main_layout.setContentsMargins(10, 10, 10, 10)
+        main_layout.setSpacing(12)  # Slightly more space between elements
+        main_layout.setContentsMargins(15, 15, 15, 15)  # More padding around edges
 
         # Repository configuration group
         repo_group = QGroupBox("Repository Configuration")
         repo_layout = QFormLayout()
+        repo_layout.setSpacing(10)
+        repo_layout.setContentsMargins(10, 15, 10, 10)
 
         # Repository path input with browse button
         repo_path_layout = QHBoxLayout()
         self.repo_path = QLineEdit()
         self.repo_path.setPlaceholderText("Select repository directory...")
+        self.repo_path.setMinimumHeight(28)  # Make it a bit taller
 
         browse_button = QPushButton("Browse...")
-        browse_button.clicked.connect(self.browse_repository)
+        browse_button.setIcon(self.style().standardIcon(QStyle.SP_DialogOpenButton))
         repo_path_layout.addWidget(self.repo_path)
         repo_path_layout.addWidget(browse_button)
 
         # Remote URL input
+        remote_layout = QHBoxLayout()
         self.remote_url = QLineEdit()
         self.remote_url.setPlaceholderText("e.g., https://github.com/username/repo.git")
+        remote_layout.addWidget(self.remote_url)
 
         # Authentication type dropdown
+        auth_layout = QHBoxLayout()
         self.auth_type = QComboBox()
         self.auth_type.addItems(["HTTPS", "SSH"])
+        self.auth_type.currentTextChanged.connect(self.on_auth_type_changed)
+
+        # SSH key button
+        self.ssh_key_button = QPushButton("Configure SSH Key")
+        self.ssh_key_button.clicked.connect(self.configure_ssh_key)
+        self.ssh_key_button.setEnabled(False)  # Disabled initially if HTTPS is selected
+
+        auth_layout.addWidget(self.auth_type)
+        auth_layout.addWidget(self.ssh_key_button)
+        auth_layout.addStretch()
+
+        # Branch selection
+        branch_layout = QHBoxLayout()
+        branch_layout.addWidget(QLabel("Current Branch:"))
+        self.branch_label = QLabel("Not selected")
+        self.branch_label.setStyleSheet("font-weight: bold;")
+        branch_layout.addWidget(self.branch_label)
+        self.branch_button = QPushButton("Change Branch")
+        self.branch_button.setIcon(self.style().standardIcon(QStyle.SP_FileDialogDetailedView))
+        branch_layout.addWidget(self.branch_button)
+        branch_layout.addStretch()
 
         # Add all to the form layout
-        repo_layout.addRow("Repository Path:", repo_path_layout)
-        repo_layout.addRow("Remote URL:", self.remote_url)
-        repo_layout.addRow("Authentication:", self.auth_type)
+        repo_layout.addRow("Repository:", repo_path_layout)
+        repo_layout.addRow("Remote URL:", remote_layout)
+        repo_layout.addRow("Authentication:", auth_layout)
+        repo_layout.addRow("Branch:", branch_layout)
 
         repo_group.setLayout(repo_layout)
         main_layout.addWidget(repo_group)
 
-        # Action buttons group
-        actions_group = QGroupBox("Git Operations")
-        actions_layout = QHBoxLayout()
+    # Git operations group
+        operations_group = QGroupBox("Git Operations")
+        operations_layout = QVBoxLayout()
+        operations_layout.setSpacing(12)
+        operations_layout.setContentsMargins(10, 15, 10, 10)
 
-        # Create action buttons
+        # Initialize repo button
         self.init_button = QPushButton("Initialize")
+        self.init_button.setIcon(self.style().standardIcon(QStyle.SP_DialogSaveButton))
         self.init_button.setToolTip("Initialize repository or set remote URL")
+        self.init_button.clicked.connect(self.initialize_repository)
 
+        # Basic Git operations
         self.push_button = QPushButton("Push")
+        self.push_button.setIcon(self.style().standardIcon(QStyle.SP_ArrowUp))
         self.push_button.setToolTip("Push local changes to remote")
+        self.push_button.clicked.connect(self.push_changes)
+
+        self.commit_button = PrimaryButton("Commit")
+        self.commit_button.setIcon(self.style().standardIcon(QStyle.SP_DialogApplyButton))
+        self.commit_button.setToolTip("Commit changes with custom message")
+        self.commit_button.clicked.connect(self.commit_with_message)
 
         self.pull_button = QPushButton("Pull")
+        self.pull_button.setIcon(self.style().standardIcon(QStyle.SP_ArrowDown))
         self.pull_button.setToolTip("Pull changes from remote")
-
-        self.sync_button = QPushButton("Sync All")
-        self.sync_button.setToolTip("Sync files and push to remote")
-
-        # Connect buttons to slots
-        self.init_button.clicked.connect(self.initialize_repository)
-        self.push_button.clicked.connect(self.push_changes)
         self.pull_button.clicked.connect(self.pull_changes)
+
+        self.sync_button = PrimaryButton("Sync All")
+        self.sync_button.setIcon(self.style().standardIcon(QStyle.SP_BrowserReload))
+        self.sync_button.setToolTip("Sync files and push to remote")
         self.sync_button.clicked.connect(self.sync_all)
 
-        #"View Changes" button
-        self.view_changes_button = QPushButton("View Changes")
-        self.view_changes_button.setToolTip("View detailed file changes")
-        self.view_changes_button.clicked.connect(self.view_changes)
-
-        #force rescan button
+        # Advanced Git operations
         self.rescan_button = QPushButton("Force Rescan")
         self.rescan_button.setToolTip("Rescan repository for changes without committing")
         self.rescan_button.clicked.connect(self.force_rescan)
 
-        #history button
-        self.history_button = QPushButton("Change History")
-        self.history_button.setToolTip("View change history")
-        self.history_button.clicked.connect(self.view_history)
-
-        # Force push button
-        self.force_push_button = QPushButton("Force Push")
-        self.force_push_button.setToolTip("Force push local changes to remote (use with caution)")
-        self.force_push_button.clicked.connect(self.force_push)
-
-        # Hard reset button
-        self.reset_button = QPushButton("Reset")
-        self.reset_button.setToolTip("Reset local repository to match remote (discards local changes)")
-        self.reset_button.clicked.connect(self.reset_repo)
-
-        # branch selection dropdown and button
-        branch_layout = QHBoxLayout()
-        branch_layout.addWidget(QLabel("Current Branch:"))
-        self.branch_label = QLabel("Not selected")
-        branch_layout.addWidget(self.branch_label)
-        self.branch_button = QPushButton("Change Branch")
-        self.branch_button.clicked.connect(self.change_branch)
-        branch_layout.addWidget(self.branch_button)
-        repo_layout.addRow("", branch_layout)
-
-
-        # Add gitignore button to the actions section:
         self.gitignore_button = QPushButton("Edit .gitignore")
         self.gitignore_button.setToolTip("Edit repository .gitignore settings")
         self.gitignore_button.clicked.connect(self.edit_gitignore)
 
-        # Add buttons to layout
-        actions_layout.addWidget(self.gitignore_button)
-        actions_layout.addWidget(self.force_push_button)
-        actions_layout.addWidget(self.reset_button)
-        actions_layout.addWidget(self.history_button)
-        actions_layout.addWidget(self.rescan_button)
-        actions_layout.addWidget(self.view_changes_button)
+        self.view_changes_button = QPushButton("View Changes")
+        self.view_changes_button.setToolTip("View detailed file changes")
+        self.view_changes_button.clicked.connect(self.view_changes)
+
+        self.force_push_button = DangerButton("Force Push")
+        self.force_push_button.setToolTip("Force push local changes to remote (use with caution)")
+        self.force_push_button.clicked.connect(self.force_push)
+
+        self.reset_button = DangerButton("Reset")
+        self.reset_button.setToolTip("Reset local repository to match remote (discards local changes)")
+        self.reset_button.clicked.connect(self.reset_repo)
+
+
+        # Create a container for Git Actions
+        actions_container = QGroupBox("Actions")
+        actions_container.setStyleSheet("""
+            QGroupBox {
+                border: 1px solid #d0ccc7;
+                border-radius: 6px;
+                background-color: #f2efeb;
+                margin-top: 8px;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 10px;
+                padding: 0 5px;
+                color: #625f5c;
+            }
+        """)
+
+        actions_layout = QHBoxLayout(actions_container)
+        actions_layout.setContentsMargins(8, 12, 8, 8)
+        actions_layout.setSpacing(8)
+
+        # Add buttons to this container
         actions_layout.addWidget(self.init_button)
+        actions_layout.addWidget(self.commit_button)
         actions_layout.addWidget(self.push_button)
         actions_layout.addWidget(self.pull_button)
         actions_layout.addWidget(self.sync_button)
+        actions_layout.addStretch()
 
-        actions_group.setLayout(actions_layout)
-        main_layout.addWidget(actions_group)
+        # Create a container for Advanced Operations
+        advanced_container = QGroupBox("Advanced Operations")
+        advanced_container.setStyleSheet("""
+            QGroupBox {
+                border: 1px solid #d0ccc7;
+                border-radius: 6px;
+                background-color: #f2efeb;
+                margin-top: 8px;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 10px;
+                padding: 0 5px;
+                color: #625f5c;
+            }
+        """)
+
+        advanced_layout = QHBoxLayout(advanced_container)
+        advanced_layout.setContentsMargins(8, 12, 8, 8)
+        advanced_layout.setSpacing(8)
+
+        # Add advanced buttons
+        advanced_layout.addWidget(self.gitignore_button)
+        advanced_layout.addWidget(self.view_changes_button)
+        advanced_layout.addWidget(self.rescan_button)
+        advanced_layout.addWidget(self.force_push_button)
+        advanced_layout.addWidget(self.reset_button)
+        advanced_layout.addStretch()
+
+        # Add these containers to the operations layout
+        operations_layout.addWidget(actions_container)
+        operations_layout.addWidget(advanced_container)
+
+        operations_group.setLayout(operations_layout)
+        main_layout.addWidget(operations_group)
 
         # Status and output area
         output_group = QGroupBox("Output")
         output_layout = QVBoxLayout()
+        output_layout.setSpacing(8)
+        output_layout.setContentsMargins(10, 15, 10, 10)
 
         self.output_text = QTextEdit()
         self.output_text.setReadOnly(True)
+        self.output_text.setFont(QFont("Consolas", 9))  # Use a monospace font
+        self.output_text.setObjectName("outputText")  # Set object name
+        self.output_text.setStyleSheet("""
+            background-color: #f9f8f6;
+            border: 1px solid #e0dcd7;
+            border-radius: 6px;
+            padding: 5px;
+            color: #4a4a4a;
+        """)
         output_layout.addWidget(self.output_text)
 
         output_group.setLayout(output_layout)
         main_layout.addWidget(output_group, 1)  # Give this more stretch
+
+        # Connect remaining signals
+        browse_button.clicked.connect(self.browse_repository)
+        self.branch_button.clicked.connect(self.change_branch)
 
         # Set the central widget
         self.setCentralWidget(central_widget)
@@ -205,40 +524,44 @@ class MainWindow(QMainWindow):
         except Exception as e:
             self.show_error(f"Failed to initialize repository: {str(e)}")
 
-    def push_changes(self, remote="origin", branch=None):
-        """Push local changes to remote"""
-        if self.repo is None:
-            raise ValueError("Repository not initialized")
+    def push_changes(self):
+        """Push local changes to remote repository"""
+        if not self.check_repo_initialized():
+            return
+
+        # Ask if user wants to use a custom commit message
+        reply = QMessageBox.question(
+            self,
+            "Push Changes",
+            "Would you like to use a custom commit message?",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.Yes
+        )
 
         try:
-            # First add all changes
-            self.repo.git.add(A=True)
+            self.statusBar().showMessage("Pushing changes...")
 
-            # Get current branch if not specified - ADD THIS BLOCK HERE
-            if branch is None:
-                try:
-                    branch = self.repo.active_branch.name
-                except:
-                    branch = "master"  # Default if can't determine
-
-            # Check if there are changes to commit
-            if self.repo.is_dirty() or len(self.repo.untracked_files) > 0:
-                # Commit changes
-                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                commit_message = f"Automatic backup commit - {timestamp}"
-                self.repo.git.commit(m=commit_message)
-                commit_result = f"Committed changes with message: '{commit_message}'"
+            if reply == QMessageBox.Yes:
+                # Open commit message dialog
+                dialog = CommitDialog(self)
+                if dialog.exec() == QDialog.Accepted:
+                    commit_message = dialog.get_commit_message()
+                    if commit_message:
+                        result = self.git_manager.push_changes_with_message(commit_message)
+                    else:
+                        result = self.git_manager.push_changes()
+                else:
+                    # Dialog cancelled
+                    self.statusBar().showMessage("Push cancelled")
+                    return
             else:
-                commit_result = "No changes to commit"
+                # Use default commit message
+                result = self.git_manager.push_changes()
 
-            # Push changes - use the branch variable here
-            push_info = self.repo.git.push(remote, branch)
-
-            return f"{commit_result}\nPush result: {push_info if push_info else 'Success'}"
-        except GitCommandError as e:
-            return f"Git error: {str(e)}"
+            self.log_output(result)
+            self.statusBar().showMessage("Push completed")
         except Exception as e:
-            return f"Error: {str(e)}"
+            self.show_error(f"Push failed: {str(e)}")
 
     def pull_changes(self):
         """Pull changes from remote repository"""
@@ -355,8 +678,31 @@ class MainWindow(QMainWindow):
         return True
 
     def log_output(self, message):
-        """Add message to output text area"""
-        self.output_text.append(message)
+        """Add message to output text area with color formatting and icons"""
+        timestamp = datetime.now().strftime("%H:%M:%S")
+
+        # Format based on message content
+        if "ERROR" in message.upper() or "FAILED" in message.upper():
+            icon = "❌"  # Error icon
+            formatted_message = f"<span style='color:#a94442; font-weight:bold;'>[{timestamp}] {icon} {message}</span>"
+        elif "SUCCESS" in message.upper() or "COMPLETED" in message.upper():
+            icon = "✅"  # Success icon
+            formatted_message = f"<span style='color:#3c763d; font-weight:bold;'>[{timestamp}] {icon} {message}</span>"
+        elif "WARNING" in message.upper():
+            icon = "⚠️"  # Warning icon
+            formatted_message = f"<span style='color:#8a6d3b;'>[{timestamp}] {icon} {message}</span>"
+        elif "SYNC" in message.upper() or "PUSH" in message.upper() or "PULL" in message.upper():
+            icon = "🔄"  # Sync icon
+            formatted_message = f"<span style='color:#31708f; font-weight:bold;'>[{timestamp}] {icon} {message}</span>"
+        elif "COMMIT" in message.upper():
+            icon = "💾"  # Save icon
+            formatted_message = f"<span style='color:#31708f; font-weight:bold;'>[{timestamp}] {icon} {message}</span>"
+        else:
+            icon = "ℹ️"  # Info icon
+            formatted_message = f"<span style='color:#4a4a4a;'>[{timestamp}] {icon} {message}</span>"
+
+        # Add message to output
+        self.output_text.append(formatted_message)
         # Ensure the newest text is visible
         self.output_text.ensureCursorVisible()
 
@@ -531,11 +877,17 @@ class MainWindow(QMainWindow):
         try:
             repo_path = self.repo_path.text()
             dialog = GitIgnoreDialog(self.git_manager.gitignore_manager, repo_path, self)
-            result = dialog.exec()
 
-            if result == QDialog.Accepted:
+            # Either use the imported QDialog:
+            if dialog.exec() == QDialog.Accepted:
                 self.log_output(".gitignore file updated successfully")
                 self.statusBar().showMessage(".gitignore updated")
+
+            # Or use the result method:
+            # dialog.exec()
+            # if dialog.result():
+            #     self.log_output(".gitignore file updated successfully")
+            #     self.statusBar().showMessage(".gitignore updated")
         except Exception as e:
             self.show_error(f"Error editing .gitignore: {str(e)}")
 
@@ -546,9 +898,10 @@ class MainWindow(QMainWindow):
 
         try:
             dialog = BranchDialog(self.git_manager, self)
-            result = dialog.exec()
+            dialog.exec()
 
-            if result == QDialog.Accepted and dialog.get_selected_branch():
+            # Use dialog result method instead
+            if dialog.result() and dialog.get_selected_branch():
                 branch = dialog.get_selected_branch()
                 self.log_output(f"Switched to branch: {branch}")
                 self.statusBar().showMessage(f"Branch: {branch}")
@@ -567,3 +920,52 @@ class MainWindow(QMainWindow):
             self.branch_label.setText(branch)
         except:
             self.branch_label.setText("Unknown")
+
+    def on_auth_type_changed(self, auth_type):
+        """Handle authentication type change"""
+        self.ssh_key_button.setEnabled(auth_type == "SSH")
+
+        if auth_type == "SSH":
+            self.log_output("SSH authentication selected. Configure your SSH key.")
+        else:
+            self.log_output("HTTPS authentication selected.")
+
+    def configure_ssh_key(self):
+        """Open SSH key configuration dialog"""
+        dialog = SSHKeyDialog(self)
+        if dialog.exec() == QDialog.Accepted:
+            ssh_key_path = dialog.get_ssh_key_path()
+            if ssh_key_path:
+                try:
+                    result = self.git_manager.set_ssh_key(ssh_key_path)
+                    self.ssh_key_path = ssh_key_path
+                    self.log_output(result)
+                    self.statusBar().showMessage("SSH key configured")
+                except Exception as e:
+                    self.show_error(f"Error configuring SSH key: {str(e)}")
+
+    def commit_with_message(self):
+        """Commit changes with custom message"""
+        if not self.check_repo_initialized():
+            return
+
+        dialog = CommitDialog(self)
+        if dialog.exec() == QDialog.Accepted:
+            commit_message = dialog.get_commit_message()
+            if commit_message:
+                try:
+                    self.statusBar().showMessage("Committing changes...")
+
+                    # Add all changes and commit
+                    self.git_manager.repo.git.add(A=True)
+
+                    # Check if there are changes to commit
+                    if self.git_manager.repo.is_dirty() or len(self.git_manager.repo.untracked_files) > 0:
+                        self.git_manager.repo.git.commit(m=commit_message)
+                        self.log_output(f"Committed changes with message: '{commit_message}'")
+                        self.statusBar().showMessage("Changes committed successfully")
+                    else:
+                        self.log_output("No changes to commit")
+                        self.statusBar().showMessage("No changes to commit")
+                except Exception as e:
+                    self.show_error(f"Commit failed: {str(e)}")

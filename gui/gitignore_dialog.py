@@ -4,8 +4,9 @@ from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QPushButton,
                               QListWidget, QSplitter, QWidget, QMessageBox)
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont
+from gui.animated_dialog import AnimatedDialog
 
-class GitIgnoreDialog(QDialog):
+class GitIgnoreDialog(AnimatedDialog):
     def __init__(self, gitignore_manager, repo_path, parent=None):
         super().__init__(parent)
         self.gitignore_manager = gitignore_manager

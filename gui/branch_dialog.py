@@ -4,8 +4,9 @@ from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QPushButton,
                               QMessageBox, QDialogButtonBox, QGroupBox, QRadioButton)
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont, QColor
+from gui.animated_dialog import AnimatedDialog
 
-class BranchDialog(QDialog):
+class BranchDialog(AnimatedDialog):
     def __init__(self, git_manager, parent=None):
         super().__init__(parent)
         self.git_manager = git_manager

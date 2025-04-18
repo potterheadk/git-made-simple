@@ -304,3 +304,45 @@ class GitManager:
             return f"Git error creating branch: {str(e)}"
         except Exception as e:
             return f"Error creating branch: {str(e)}"
+
+    def set_ssh_key(self, key_path):
+        """Set SSH key for authentication"""
+        if not os.path.exists(key_path):
+            raise ValueError(f"SSH key file not found: {key_path}")
+
+        # Set GIT_SSH_COMMAND environment variable
+        os.environ['GIT_SSH_COMMAND'] = f'ssh -i {key_path} -o StrictHostKeyChecking=no'
+        return f"SSH key set to: {key_path}"
+
+    def push_changes_with_message(self, commit_message, remote="origin", branch=None):
+        """Push local changes with custom commit message"""
+        if self.repo is None:
+            raise ValueError("Repository not initialized")
+
+        try:
+            # First add all changes
+            self.repo.git.add(A=True)
+
+            # Get current branch if not specified
+            if branch is None:
+                try:
+                    branch = self.repo.active_branch.name
+                except:
+                    branch = "master"  # Default if can't determine
+
+            # Check if there are changes to commit
+            if self.repo.is_dirty() or len(self.repo.untracked_files) > 0:
+                # Commit changes with custom message
+                self.repo.git.commit(m=commit_message)
+                commit_result = f"Committed changes with message: '{commit_message}'"
+            else:
+                commit_result = "No changes to commit"
+
+            # Push changes
+            push_info = self.repo.git.push(remote, branch)
+
+            return f"{commit_result}\nPush result: {push_info if push_info else 'Success'}"
+        except git.GitCommandError as e:
+            return f"Git error: {str(e)}"
+        except Exception as e:
+            return f"Error: {str(e)}"
