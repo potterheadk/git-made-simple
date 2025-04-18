@@ -1,13 +1,10 @@
-<<<<<<< HEAD
-# Hi
-=======
 
 ---
 
 # Git Made Simple — Simplifying Git for Everyone
 
 <p align="center">
-  <img src="placeholder.png" alt="Git Made Simple Screenshot" width="600"> 
+  <img src="first_look.png" alt="Git Made Simple Screenshot" width="600"> 
   <!-- TODO: Replace placeholder.png with an actual screenshot of the application -->
 </p>
 
