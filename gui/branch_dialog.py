@@ -20,7 +20,6 @@ class BranchDialog(AnimatedDialog):
 
     def setup_ui(self):
         layout = QVBoxLayout(self)
-
         # Header with explanation
         header_label = QLabel("Select a branch to work with or create a new branch.")
         header_label.setWordWrap(True)
@@ -34,11 +33,34 @@ class BranchDialog(AnimatedDialog):
             self.current_branch_label = QLabel("Current branch: <i>Unknown</i>")
         layout.addWidget(self.current_branch_label)
 
-        # Branch list
+        # Branch list with better styling
         branches_group = QGroupBox("Available Branches")
         branches_layout = QVBoxLayout(branches_group)
 
         self.branch_list = QListWidget()
+        self.branch_list.setStyleSheet("""
+            QListWidget {
+                background-color: #f8f5f0;
+                border: 1px solid #d0c8bf;
+                border-radius: 6px;
+                padding: 5px;
+                font-size: 11pt;
+            }
+            QListWidget::item {
+                padding: 8px;
+                border-radius: 4px;
+                color: #3a3631;
+            }
+            QListWidget::item:selected {
+                background-color: #d0c5b8;
+                color: #2b2822;
+                font-weight: bold;
+            }
+            QListWidget::item:hover:!selected {
+                background-color: #e8e1d7;
+            }
+        """)
+
         self.branch_list.itemDoubleClicked.connect(self.checkout_selected_branch)
         branches_layout.addWidget(self.branch_list)
 
@@ -117,7 +139,7 @@ class BranchDialog(AnimatedDialog):
             )
 
     def load_branches(self):
-        """Load branches from the repository"""
+        """Load branches from the repository with improved visual representation"""
         try:
             self.branch_list.clear()
             branches = self.git_manager.get_all_branches()
@@ -125,28 +147,65 @@ class BranchDialog(AnimatedDialog):
             # Get current branch for highlighting
             current_branch = self.git_manager.get_current_branch()
 
-            # Add local branches
+            # Add header item for local branches
             if branches['local']:
-                self.branch_list.addItem("--- Local Branches ---")
+                header_item = QListWidgetItem("📂 LOCAL BRANCHES")
+                header_item.setFlags(Qt.ItemIsEnabled)  # Make it non-selectable
+                header_item.setBackground(QColor("#e8e0d3"))  # Light taupe background
+                header_item.setForeground(QColor("#5c554d"))  # Dark text
+                header_item.setTextAlignment(Qt.AlignCenter)
+                font = header_item.font()
+                font.setBold(True)
+                header_item.setFont(font)
+                self.branch_list.addItem(header_item)
+
+                # Add local branches
                 for branch in branches['local']:
                     item = QListWidgetItem(branch)
                     # Highlight current branch
                     if branch == current_branch:
-                        item.setBackground(QColor(200, 255, 200))  # Light green
-                        item.setText(f"{branch} (current)")
+                        item.setBackground(QColor("#d5cbbe"))  # Medium taupe
+                        item.setText(f"→ {branch} (current)")
+                        font = item.font()
+                        font.setBold(True)
+                        item.setFont(font)
                     self.branch_list.addItem(item)
 
-            # Add remote branches
+            # Add header item for remote branches
             if branches['remote']:
-                self.branch_list.addItem("--- Remote Branches ---")
+                # Add spacer item
+                spacer = QListWidgetItem("")
+                spacer.setFlags(Qt.ItemIsEnabled)  # Make it non-selectable
+                self.branch_list.addItem(spacer)
+
+                header_item = QListWidgetItem("🌐 REMOTE BRANCHES")
+                header_item.setFlags(Qt.ItemIsEnabled)  # Make it non-selectable
+                header_item.setBackground(QColor("#e8e0d3"))  # Light taupe background
+                header_item.setForeground(QColor("#5c554d"))  # Dark text
+                header_item.setTextAlignment(Qt.AlignCenter)
+                font = header_item.font()
+                font.setBold(True)
+                header_item.setFont(font)
+                self.branch_list.addItem(header_item)
+
+                # Add remote branches
                 for branch in branches['remote']:
                     if branch not in branches['local']:  # Don't show duplicates
-                        item = QListWidgetItem(f"{branch} (remote)")
+                        item = QListWidgetItem(f"{branch}")
                         item.setData(Qt.UserRole, branch)
+                        item.setForeground(QColor("#5c554d"))  # Slightly darker text
                         self.branch_list.addItem(item)
             else:
-                # Debug information if no remote branches found
-                self.branch_list.addItem("No remote branches found")
+                # No remote branches found
+                spacer = QListWidgetItem("")
+                spacer.setFlags(Qt.ItemIsEnabled)
+                self.branch_list.addItem(spacer)
+
+                no_remote = QListWidgetItem("No remote branches found")
+                no_remote.setFlags(Qt.ItemIsEnabled)
+                no_remote.setForeground(QColor("#8c8680"))  # Gray text
+                no_remote.setTextAlignment(Qt.AlignCenter)
+                self.branch_list.addItem(no_remote)
 
         except Exception as e:
             QMessageBox.warning(
