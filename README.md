@@ -1,7 +1,7 @@
 
 ---
 
-# 🚀 Git Made Simple — Simplifying Git for Everyone
+# Git Made Simple — Simplifying Git for Everyone
 
 <p align="center">
   <img src="placeholder.png" alt="Git Made Simple Screenshot" width="600"> 
