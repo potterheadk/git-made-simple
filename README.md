@@ -53,7 +53,7 @@ Whether you're a beginner or just prefer a GUI over the command line, Git Made S
 ```bash
 pip install git-made-simple
 ```
-
+# OR Build it yourself from Git Repository.
 
 1. **Clone the Repository:**
    ```bash
