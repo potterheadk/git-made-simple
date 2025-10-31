@@ -49,6 +49,12 @@ Whether you're a beginner or just prefer a GUI over the command line, Git Made S
 
 ## ⚙️ Installation Guide
 
+## Straight from pypi source: 
+```bash
+pip install git-made-simple
+```
+
+
 1. **Clone the Repository:**
    ```bash
    git clone https://github.com/potterheadk/git-made-simple.git
